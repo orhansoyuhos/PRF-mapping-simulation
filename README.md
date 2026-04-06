@@ -54,7 +54,3 @@ The script will:
 - An animated figure showing the stimulus grid and per-channel neural activity updating in real time across trials.
 - A heatmap of the population receptive field (optionally smoothed via cubic interpolation).
 - Console output confirming trial count, unique targets per trial, location repetition counts, and the population's preferred grid location.
-
-## Author
-
-Orhan Soyuhos, 2024

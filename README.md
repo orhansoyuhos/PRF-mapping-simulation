@@ -1,6 +1,8 @@
 # Population Receptive Field (pRF) Mapping Simulation
 
-![pRF Mapping Animation](prf_ani.gif)
+<p align="center">
+  <img src="prf_ani.gif" width="60%" alt="pRF Mapping Animation"/>
+</p>
 
 A MATLAB simulation of population receptive field mapping using a multi-channel neural recording setup. The simulation generates synthetic neural activity in response to stimuli presented at different spatial locations on a grid, then recovers the population receptive field via response averaging.
 

@@ -1,170 +1,60 @@
-# Population Receptive Field Mapping Animation
+# Population Receptive Field (pRF) Mapping Simulation
 
-![Population receptive field animation](prf_ani.gif)
+A MATLAB simulation of population receptive field mapping using a multi-channel neural recording setup. The simulation generates synthetic neural activity in response to stimuli presented at different spatial locations on a grid, then recovers the population receptive field via response averaging.
 
-This repository contains a small MATLAB simulation for population receptive field (pRF) mapping. It generates a balanced sequence of visual stimulus locations on a grid, simulates multi-channel neural activity across trials, animates the recording process, and reconstructs a spatial receptive field heatmap from the simulated responses.
+## Overview
 
-## What The Project Does
+The simulation models a 4×6 stimulus grid presented to a population of neurons. Each neural channel has a preferred spatial location drawn from a Gaussian distribution centered on a user-defined peak sensitivity location. Stimuli are presented in randomized trials, neural responses are simulated, and the resulting population receptive field is visualized as a heatmap.
 
-The workflow models an experiment in which:
+## Files
 
-1. A 2D grid of stimulus locations is defined.
-2. Each trial presents 3 unique stimulus locations in sequence.
-3. A population of recording channels responds more strongly to stimuli near a shared preferred location.
-4. Simulated activity is aggregated across trials to estimate the population receptive field.
-
-The result is a spatial heatmap showing where the simulated neural population is most sensitive.
-
-## Main Entry Point
-
-Run:
-
-```matlab
-RF_mapping_simulation
-```
-
-The main script will:
-
-1. Configure experiment timing and grid settings.
-2. Generate a balanced stimulus schedule.
-3. Verify that the schedule is valid.
-4. Simulate neural activity for all trials.
-5. Animate stimulus presentation and recorded activity.
-6. Compute and display the pRF heatmap.
-7. Print the ground-truth preferred population location.
-
-## Repository Structure
-
-- `RF_mapping_simulation.m`
-  Main script that sets parameters, builds the trial schedule, runs the simulation, and computes the receptive field map.
-
-- `animate_trials.m`
-  Simulates each trial and displays a side-by-side animation of the current stimulus and the evolving neural activity matrix.
-
-- `simulate_neural_activity.m`
-  Generates channel-by-time activity for a single trial using a Gaussian distance-based response model.
-
-- `calculate_population_receptive_field.m`
-  Extracts activity during stimulus windows, averages responses by spatial location, and plots the resulting pRF heatmap.
-
-- `plot_stimulus.m`
-  Helper function for drawing the active stimulus location on the grid.
-
-- `prf_ani.gif`
-  Example animation preview.
-
-## Default Experiment Setup
-
-The current script is configured for:
-
-- Grid size: `4 x 6`
-- Total locations: `24`
-- Stimuli per trial: `3`
-- Repetitions per location: `10`
-- Baseline duration: `300 ms`
-- Stimulus duration: `500 ms`
-- Inter-stimulus interval: `100 ms`
-- Channels: `32`
-
-This produces:
-
-- `80` total trials
-- `2000 ms` of recording per trial
-
-## Data Flow
-
-### 1. Trial Schedule Generation
-
-`RF_mapping_simulation.m` creates a matrix named `stimulusLocations` with shape:
-
-```text
-totalTrials x 3
-```
-
-Each row is one trial, and each entry is a linear index into the stimulus grid. The script verifies:
-
-- The expected total number of trials is generated.
-- Each trial contains 3 unique locations.
-- Each grid location appears exactly the requested number of times.
-
-### 2. Neural Activity Simulation
-
-For each trial, `simulate_neural_activity.m`:
-
-- Assigns each recording channel a preferred 2D location near a shared peak sensitivity location.
-- Adds low-amplitude baseline noise.
-- Increases activity during each stimulus window according to the distance between the stimulus location and the channel's preferred location.
-
-The simulated response for one trial has shape:
-
-```text
-channels x time
-```
-
-The full dataset returned by `animate_trials.m` has shape:
-
-```text
-trials x channels x time
-```
-
-### 3. Population Receptive Field Estimation
-
-`calculate_population_receptive_field.m`:
-
-- Finds the time windows corresponding to each of the 3 stimulus presentations.
-- Collects all neural activity segments associated with each grid location.
-- Averages responses across time, channels, and repetitions.
-- Places the mean response back into the corresponding row and column of the grid.
-
-The final visualization is shown as either:
-
-- a discrete heatmap, or
-- an interpolated smoothed map
-
-depending on the `interpolation` flag in the main script.
+| File | Description |
+|------|-------------|
+| `RF_mapping_simulation.m` | Main script — sets experiment parameters and runs the full pipeline |
+| `animate_trials.m` | Simulates and animates neural activity trial-by-trial |
+| `simulate_neural_activity.m` | Generates synthetic channel responses using a Gaussian spatial tuning model |
+| `calculate_population_receptive_field.m` | Computes and visualizes the pRF heatmap from recorded activity |
+| `plot_stimulus.m` | Renders the current stimulus location on the grid |
 
 ## Requirements
 
-- MATLAB
-- Statistics and Machine Learning Toolbox
-  Needed for the `heatmap` visualization path
+- MATLAB (R2019b or later recommended)
+- Statistics and Machine Learning Toolbox (used by `heatmap`)
 
-## Notes And Current Constraints
+## Usage
 
-- The main script exposes `arraySize` as a parameter, but `simulate_neural_activity.m` currently hardcodes the grid as `4 x 6`. In practice, the project should presently be treated as a `4 x 6` simulation unless that helper function is updated.
-- The code is a compact educational simulation meant to illustrate stimulus scheduling, neural response generation, and receptive field recovery rather than serve as a full biological model.
-- The animation and the pRF heatmap are both generated directly from the simulated dataset during execution.
+Open and run `RF_mapping_simulation.m` in MATLAB. Key parameters at the top of the script can be adjusted:
 
-## Customization
-
-The easiest parameters to change are at the top of `RF_mapping_simulation.m`:
-
-- `arraySize`
-- `repetitionsPerLocation`
-- `baselineDuration`
-- `stimulusDuration`
-- `ISIDuration`
-- `numChannels`
-- `color_map`
-- `interpolation`
-
-If you want to generalize the simulation beyond a `4 x 6` grid, update `simulate_neural_activity.m` so its internal grid dimensions come from `arraySize` rather than fixed values.
-
-## Expected Output
-
-Running the script should produce:
-
-- Console messages validating the trial schedule
-- An animated figure showing:
-  - the active stimulus location
-  - the simulated neural activity matrix
-- A population receptive field heatmap
-- A printed preferred location such as:
-
-```text
-Population's preferred location: row = X; column = Y.
+```matlab
+arraySize = [4, 6];              % Stimulus grid dimensions
+repetitionsPerLocation = 10;     % How many times each location is presented
+baselineDuration = 300;          % Pre-stimulus baseline (ms)
+stimulusDuration = 500;          % Duration of each stimulus (ms)
+ISIDuration = 100;               % Inter-stimulus interval (ms)
+numChannels = 32;                % Number of recording channels
+color_map = hot;                 % Colormap for the pRF heatmap
+interpolation = true;            % Smooth the heatmap via cubic interpolation
 ```
 
-## License
+The script will:
+1. Generate a randomized stimulus sequence ensuring each of the 24 locations is shown `repetitionsPerLocation` times.
+2. Animate the trial-by-trial stimulus presentation and neural activity.
+3. Compute the population receptive field by averaging channel responses per location.
+4. Display the pRF as a heatmap and print the population's preferred location to the console.
 
-This project is distributed under the terms of the [LICENSE](LICENSE) file.
+## Simulation Details
+
+- **Spatial tuning**: Each channel's preferred location is sampled from a 2D Gaussian centered on `peakSensitivityLocation`, with spread `σ = sqrt(totalLocations) / 6`.
+- **Response model**: Channel response strength to a stimulus is `exp(-0.5 * (distance / σ)²)`, where distance is the Euclidean distance between the channel's preferred location and the stimulus location.
+- **Trial structure**: Each trial presents 3 stimuli, with baseline → stim → ISI → stim → ISI → stim timing.
+- **pRF recovery**: Mean activity during each stimulus period is aggregated across trials and channels to estimate the response at each grid location.
+
+## Output
+
+- An animated figure showing the stimulus grid and per-channel neural activity updating in real time across trials.
+- A heatmap of the population receptive field (optionally smoothed via cubic interpolation).
+- Console output confirming trial count, unique targets per trial, location repetition counts, and the population's preferred grid location.
+
+## Author
+
+Orhan Soyuhos, 2024
